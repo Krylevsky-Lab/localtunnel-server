@@ -1,0 +1,7 @@
+configVersion: 1
+project: localtunnel-server
+---
+image: app
+dockerfile: Dockerfile
+context: ./
+staged: true

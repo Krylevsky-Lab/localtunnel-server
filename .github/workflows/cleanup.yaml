@@ -1,0 +1,27 @@
+name: cleanup
+on:
+  schedule:
+    - cron: "0 3 * * *"
+jobs:
+  cleanup:
+    name: cleanup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch --prune --unshallow
+
+      - uses: werf/actions/install@v2
+        with:
+          version: v2.6.7
+
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.WERF_AUTH_TOKEN_BASE64 }}
+
+      - run: |
+          source "$(werf ci-env github --as-file)"
+          werf cleanup --repo-github-token ${{ github.token }}
+        env:
+          WERF_KUBECONFIG_BASE64: ${{ secrets.WERF_KUBE_CONFIG_BASE64 }}

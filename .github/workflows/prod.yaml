@@ -1,0 +1,34 @@
+name: prod
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  prod:
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - uses: werf/actions/install@v2
+        with:
+          version: v2.6.7
+
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.WERF_AUTH_TOKEN_BASE64 }}
+    
+      - run: |
+          source "$(werf ci-env github --as-file)"
+          werf converge
+        env:
+          WERF_BUILDAH_MODE: auto
+          WERF_ENV: prod
+          WERF_KUBECONFIG_BASE64: ${{ secrets.WERF_KUBE_CONFIG_BASE64 }}
+          WERF_SET_KUBE_REGISTRY_CONFIG_BASE64: kube_registry_config_base64=${{ secrets.KUBE_REGISTRY_CONFIG_BASE64 }}
+          DOTENV_PRIVATE_KEY_PRODUCTION: ${{ secrets.DOTENV_PRIVATE_KEY_PRODUCTION }}
