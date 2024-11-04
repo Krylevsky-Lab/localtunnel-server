@@ -1,2 +1,2 @@
 application: localtunnel
-domain: *.lt.sky-public.ru
+domain: '*.lt.sky-public.ru'
